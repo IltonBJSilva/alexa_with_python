@@ -32,6 +32,21 @@ def executa_comando():
 
 
 
+def comando_voz_usuario():
+    comando = executa_comando()
+
+    if 'horas' in comando:
+        hora = datetime.datetime.now().strftime('%H:%M')
+        maquina.say('Agora São ' + hora)
+        maquina.runAndWait()
+
+
+    
+
+comando_voz_usuario()
+
+
+
 
 
 
