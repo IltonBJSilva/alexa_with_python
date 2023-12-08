@@ -39,7 +39,13 @@ def comando_voz_usuario():
         hora = datetime.datetime.now().strftime('%H:%M')
         maquina.say('Agora São ' + hora)
         maquina.runAndWait()
-
+    elif 'procure por' in comando:
+        procurar = comando.replace('procure por', '')
+        wikipedia.set_lang('pt')
+        info = wikipedia.summary(procurar, 2)
+        print(info)
+        maquina.say(info)
+        maquina.runAndWait()
 
     
 
