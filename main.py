@@ -46,6 +46,12 @@ def comando_voz_usuario():
         print(info)
         maquina.say(info)
         maquina.runAndWait()
+    elif 'toque' in comando:
+        musica = comando.replace('toque', '')
+        resultado = pywhatkit.playonyt(musica)
+        maquina.say('Tocando ' + musica)
+        maquina.runAndWait()
+        pywhatkit.playonyt(musica)
 
     
 
