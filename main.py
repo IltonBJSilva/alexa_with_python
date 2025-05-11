@@ -5,117 +5,147 @@ import wikipedia
 import pywhatkit
 import webbrowser
 import os
+import random
 
-#Reconhecer nosso audio
+# Configurações de reconhecimento e voz
 audio = sr.Recognizer()
 maquina = pyttsx3.init()
+
 def tina_fala(text):
     maquina.say(text)
     maquina.runAndWait()
 
-
+# Função principal com loop contínuo
 def main():
+    tina_fala(
+        'Olá, eu sou a Tina, sua assistente virtual. '
+        'Você pode dizer: horas, procure por, toque, criar, abrir site, anotar, ler tarefas, conte uma piada, calcule ou sair.'
+    )
 
-    
-    tina_fala('Olá, eu sou a Tina, sua assistente virtual, em que posso ajudar?\n Diga: horas, para que eu o informe,Diga: procure por, e diga oque deseja procurar, Diga: toque, e informe a musica, Diga: criar, e eu irei criar uma lista de tarefas')
-    comando = executa_comando()
-
-    if 'horas' in comando:
-        horas()
-    elif 'procure por' in comando:
-        search_wiki(comando)
-    elif 'toque' in comando:
-        music(comando)
-    elif 'criar' in comando:
-        todo()
-
-    
-#print(sr.Microphone().list_microphone_names())
-
-# Informa as horas
-def horas():
-    #hora = comando.replace('horas', '')
-    hora = datetime.datetime.now().strftime('%H:%M')
-    tina_fala('Agora São ' + hora)
-
-# pesquisa na wiki
-def search_wiki(comando):
-    procurar = comando.replace('procure por', '')
-    wikipedia.set_lang('pt')
-    info = wikipedia.summary(procurar, 2)
-    print(info)
-    tina_fala(info)
-
-# abre uma musica
-def music(comando):
-    musica = comando.replace('toque', '')
-    resultado = pywhatkit.playonyt(musica)
-    tina_fala('Tocando ' + musica)
-# Cria uma lista de tarefas
-
-def todo():
-    tina_fala('Ok, vou criar a lista, mais antes me diga uma coisa, oque o senhor deseja adicionar a lista de tarefas?')
     while True:
-        task = executa_comando()
-        if 'terminei' in task:
-            tina_fala('Encerrando a criação da lista de tarefas')
-            break
-        with open('todo.txt', 'a') as f:
-            f.write(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M')} - {task}\n")
-            tina_fala('Tarefa adicionada, o senhor deseja mais alguma coisa? se não diga terminei')
+        comando = executa_comando()
+        if not comando:
+            tina_fala('Não entendi. Por favor, tente novamente.')
+            continue
 
-#Executa os comandos
+        if 'horas' in comando:
+            horas()
+        elif 'procure por' in comando:
+            search_wiki(comando)
+        elif 'toque' in comando:
+            music(comando)
+        elif 'criar' in comando:
+            todo()
+        elif 'abrir' in comando:
+            abrir_site(comando)
+        elif 'anotar' in comando:
+            anotar()
+        elif 'ler tarefas' in comando:
+            ler_tarefas()
+        elif 'piada' in comando:
+            contar_piada()
+        elif 'calcule' in comando:
+            calcular(comando)
+        elif 'sair' in comando or 'encerrar' in comando or 'tchau' in comando:
+            encerrar()
+        else:
+            tina_fala('Desculpe, não reconheci esse comando.')
+
+# Funções auxiliares
 def executa_comando():
     try:
-        with sr.Microphone(2) as source:
-            print('Ouvindo audio...') # pra saber se esta ouvindo a gente
-            tina_fala('Pode falar: ') # fala
-            voz = audio.listen(source) # escutar o audio
-            comando = audio.recognize_google(voz, language='pt-BR') # receber comando
-            comando = comando.lower() # deixar tudo em minusculo
+        with sr.Microphone(1) as source:
+            print('Ouvindo áudio...')
+            tina_fala('Pode falar:')
+            voz = audio.listen(source)
+            comando = audio.recognize_google(voz, language='pt-BR').lower()
             if 'tina' in comando:
-                comando = comando.replace('tina', '') # tirar o nome tina
-                #tina_fala(comando) # Fala
-
+                comando = comando.replace('tina', '').strip()
+            return comando
     except:
-        print('Microfone não funciona corretamente')
-    return comando
+        print('Erro com o microfone ou reconhecimento.')
+        return ''
 
-'''
-def comando_voz_usuario():
-    comando = executa_comando()
-    if 'horas' in comando:
-        #hora = comando.replace('horas', '')
-        hora = datetime.datetime.now().strftime('%H:%M')
-        tina_fala('Agora São ' + hora)
-    elif 'procure por' in comando:
-        procurar = comando.replace('procure por', '')
-        wikipedia.set_lang('pt')
-        info = wikipedia.summary(procurar, 2)
+def horas():
+    hora = datetime.datetime.now().strftime('%H:%M')
+    tina_fala('Agora são ' + hora)
+
+def search_wiki(comando):
+    termo = comando.replace('procure por', '').strip()
+    wikipedia.set_lang('pt')
+    try:
+        info = wikipedia.summary(termo, 2)
         print(info)
         tina_fala(info)
-    elif 'toque' in comando:
-        musica = comando.replace('toque', '')
-        resultado = pywhatkit.playonyt(musica)
-        tina_fala('Tocando ' + musica)
-        pywhatkit.playonyt(musica)
-    elif 'criar' in comando:
-        tina_fala('Ok, vou criar a lista, mais antes me diga uma coisa, oque o senhor deseja adicionar a lista de tarefas?')
-        while True:
-            task = executa_comando()
-            print(comando)
-            task = comando.replace('terminei', '')
-            with open('todo.txt', 'a') as f:
-                f.write(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M')} - {task}\n")
-            tina_fala('Tarefa adicionada, o senhor deseja mais alguma coisa? se não diga terminei')
-            if 'terminei' in comando:
-                tina_fala('Encerrando a criação da lista de tarefas')
-                break
-'''
-#comando_voz_usuario()
+    except:
+        tina_fala('Desculpe, não consegui encontrar informações sobre isso.')
 
+def music(comando):
+    musica = comando.replace('toque', '').strip()
+    tina_fala('Tocando ' + musica)
+    pywhatkit.playonyt(musica)
 
-main() # função principal 
+def todo():
+    tina_fala('O que deseja adicionar à lista de tarefas? Diga "terminei" para encerrar.')
+    while True:
+        tarefa = executa_comando()
+        if 'terminei' in tarefa:
+            tina_fala('Encerrando a criação da lista de tarefas.')
+            break
+        with open('todo.txt', 'a') as f:
+            f.write(f"{datetime.datetime.now().strftime('%d/%m/%Y %H:%M')} - {tarefa}\n")
+        tina_fala('Tarefa adicionada.')
 
+def abrir_site(comando):
+    sites = {
+        'youtube': 'https://www.youtube.com',
+        'gmail': 'https://mail.google.com',
+        'google': 'https://www.google.com',
+        'noticias': 'https://g1.globo.com',
+    }
+    for nome, url in sites.items():
+        if nome in comando:
+            tina_fala(f'Abrindo {nome}')
+            webbrowser.open(url)
+            return
+    tina_fala('Desculpe, não conheço esse site.')
 
+def anotar():
+    tina_fala('O que você deseja anotar?')
+    anotacao = executa_comando()
+    with open('anotacoes.txt', 'a') as f:
+        f.write(f"{datetime.datetime.now()} - {anotacao}\n")
+    tina_fala('Anotação salva!')
 
+def ler_tarefas():
+    if not os.path.exists('todo.txt'):
+        tina_fala('Você ainda não tem tarefas.')
+        return
+    tina_fala('Aqui estão suas tarefas:')
+    with open('todo.txt', 'r') as f:
+        for linha in f:
+            tina_fala(linha.strip())
+
+def contar_piada():
+    piadas = [
+        'Por que o programador foi ao médico? Porque ele tinha um bug.',
+        'O que o zero disse para o oito? Belo cinto!',
+        'Qual é o cúmulo do programador? Usar Ctrl+C e esquecer de Ctrl+V.',
+    ]
+    tina_fala(random.choice(piadas))
+
+def calcular(comando):
+    comando = comando.replace('calcule', '').strip()
+    comando = comando.replace('mais', '+').replace('menos', '-').replace('vezes', '*').replace('dividido por', '/')
+    try:
+        resultado = eval(comando)
+        tina_fala(f'O resultado é {resultado}')
+    except:
+        tina_fala('Não consegui calcular isso.')
+
+def encerrar():
+    tina_fala('Até logo!')
+    exit()
+
+# Início da assistente
+main()
